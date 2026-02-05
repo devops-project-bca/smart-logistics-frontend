@@ -1,8 +1,8 @@
-name: Frontend CI (React)
+name: Frontend CI (React + Sonar)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "feature/**" ]
   pull_request:
     branches: [ "main" ]
 
@@ -14,13 +14,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 18
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: 18
 
       - name: Install dependencies
         run: npm install
 
-      - name: Build (ignore warnings in CI)
-        run: CI=false npm run build
+      - name: Build project
+        run: npm run build
+        env:
+          CI: false
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=devops-project-bca_smart-logistics-frontend
+            -Dsonar.organization=devops-project-bca
+            -Dsonar.sources=src
