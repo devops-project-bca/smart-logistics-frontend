@@ -97,8 +97,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    load();
-  }, [load]);
+  load();
+}, [load]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
