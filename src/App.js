@@ -94,7 +94,7 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [notify]);
 
   useEffect(() => {
   load();
