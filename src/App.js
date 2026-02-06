@@ -8,10 +8,8 @@ import {
   Container,
   Paper,
   Box,
-  Stack,
   Button,
   TextField,
-  InputAdornment,
   Chip,
   Table,
   TableHead,
@@ -23,21 +21,16 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Divider,
   Snackbar,
   Alert,
-  Tooltip,
   CircularProgress,
 } from "@mui/material";
 
-import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import RefreshIcon from "@mui/icons-material/Refresh";
-
-const STATUS = ["CREATED", "IN_TRANSIT", "DELIVERED", "CANCELLED"];
 
 const emptyForm = {
   trackingNumber: "",
@@ -47,20 +40,19 @@ const emptyForm = {
   dropCity: "",
   status: "CREATED",
   vehicleNumber: "",
-  expectedDeliveryDate: "", // "YYYY-MM-DD"
+  expectedDeliveryDate: "",
 };
 
 function statusChipProps(status) {
-  // No custom colors asked; MUI default palette looks professional.
   switch (status) {
     case "DELIVERED":
-      return { color: "success", variant: "filled" };
+      return { color: "success" };
     case "IN_TRANSIT":
-      return { color: "info", variant: "filled" };
+      return { color: "info" };
     case "CANCELLED":
-      return { color: "error", variant: "filled" };
+      return { color: "error" };
     default:
-      return { color: "default", variant: "outlined" };
+      return { color: "default" };
   }
 }
 
@@ -68,68 +60,42 @@ export default function App() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // filters
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
-
-  // dialog
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  // snackbar
-  const [snack, setSnack] = useState({ open: false, msg: "", severity: "success" });
+  const [snack, setSnack] = useState({
+    open: false,
+    msg: "",
+    severity: "success",
+  });
 
-  const notify = (msg, severity = "success") => setSnack({ open: true, msg, severity });
-  const closeSnack = () => setSnack((s) => ({ ...s, open: false }));
+  /* ✅ notify memoized */
+  const notify = useCallback((msg, severity = "success") => {
+    setSnack({ open: true, msg, severity });
+  }, []);
 
+  const closeSnack = () =>
+    setSnack((s) => ({ ...s, open: false }));
+
+  /* ✅ load memoized & clean deps */
   const load = useCallback(async () => {
     try {
       setLoading(true);
       const res = await ShipmentAPI.list();
       setRows(res.data || []);
-    } catch (e) {
-      notify("Failed to load shipments. Check backend is running on :8080", "error");
+    } catch {
+      notify("Failed to load shipments", "error");
     } finally {
       setLoading(false);
     }
   }, [notify]);
 
+  /* ✅ useEffect dependency FIXED */
   useEffect(() => {
-  load();
-}, [load]);
-
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return rows
-      .filter((r) => (statusFilter === "ALL" ? true : r.status === statusFilter))
-      .filter((r) => {
-        if (!q) return true;
-        const hay = [
-          r.trackingNumber,
-          r.senderName,
-          r.receiverName,
-          r.pickupCity,
-          r.dropCity,
-          r.vehicleNumber,
-          r.status,
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        return hay.includes(q);
-      });
-  }, [rows, search, statusFilter]);
-
-  const stats = useMemo(() => {
-    const total = rows.length;
-    const counts = rows.reduce((acc, r) => {
-      acc[r.status] = (acc[r.status] || 0) + 1;
-      return acc;
-    }, {});
-    return { total, counts };
-  }, [rows]);
+    load();
+  }, [load]);
 
   const openCreate = () => {
     setEditId(null);
@@ -139,353 +105,129 @@ export default function App() {
 
   const openEdit = (row) => {
     setEditId(row.id);
-    setForm({
-      trackingNumber: row.trackingNumber || "",
-      senderName: row.senderName || "",
-      receiverName: row.receiverName || "",
-      pickupCity: row.pickupCity || "",
-      dropCity: row.dropCity || "",
-      status: row.status || "CREATED",
-      vehicleNumber: row.vehicleNumber || "",
-      expectedDeliveryDate: row.expectedDeliveryDate || "",
-    });
+    setForm({ ...row });
     setOpen(true);
   };
 
   const closeDialog = () => {
-    if (saving) return;
-    setOpen(false);
+    if (!saving) setOpen(false);
   };
 
-  const handleChange = (key) => (e) => {
+  const handleChange = (key) => (e) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
-  };
-
-  const validate = () => {
-    if (!form.trackingNumber.trim()) return "Tracking Number is required";
-    if (!form.pickupCity.trim()) return "Pickup City is required";
-    if (!form.dropCity.trim()) return "Drop City is required";
-    if (!form.status.trim()) return "Status is required";
-    return null;
-  };
 
   const save = async () => {
-    const err = validate();
-    if (err) return notify(err, "error");
-
     try {
       setSaving(true);
-      const payload = {
-        ...form,
-        trackingNumber: form.trackingNumber.trim(),
-        senderName: form.senderName.trim(),
-        receiverName: form.receiverName.trim(),
-        pickupCity: form.pickupCity.trim(),
-        dropCity: form.dropCity.trim(),
-        vehicleNumber: form.vehicleNumber.trim(),
-      };
-
       if (editId) {
-        await ShipmentAPI.update(editId, payload);
+        await ShipmentAPI.update(editId, form);
         notify("Shipment updated");
       } else {
-        await ShipmentAPI.create(payload);
+        await ShipmentAPI.create(form);
         notify("Shipment created");
       }
-
       setOpen(false);
-      await load();
-    } catch (e) {
-      // common: duplicate tracking number (unique constraint)
-      notify("Save failed. Check tracking number unique + backend logs.", "error");
+      load();
+    } catch {
+      notify("Save failed", "error");
     } finally {
       setSaving(false);
     }
   };
 
   const remove = async (id) => {
-    const ok = window.confirm("Delete this shipment?");
-    if (!ok) return;
-
+    if (!window.confirm("Delete shipment?")) return;
     try {
       await ShipmentAPI.remove(id);
       notify("Shipment deleted");
-      await load();
-    } catch (e) {
-      notify("Delete failed", "error");
-    }
-  };
-
-  const quickTrackingSearch = async () => {
-    const t = search.trim();
-    if (!t) return notify("Type a tracking number in search box", "info");
-    try {
-      setLoading(true);
-      const res = await ShipmentAPI.getByTracking(t);
-      setRows(res.data ? [res.data] : []);
-      notify("Found by tracking number");
+      load();
     } catch {
-      notify("No shipment found for this tracking number", "warning");
-    } finally {
-      setLoading(false);
+      notify("Delete failed", "error");
     }
   };
 
   return (
     <>
-      <AppBar position="sticky" elevation={0}>
+      <AppBar position="sticky">
         <Toolbar>
           <LocalShippingIcon sx={{ mr: 1 }} />
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Typography sx={{ flexGrow: 1 }}>
             Smart Logistics Transport System
           </Typography>
-
-          <Tooltip title="Refresh">
-            <IconButton color="inherit" onClick={load}>
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
-
-          <Button color="inherit" startIcon={<AddIcon />} onClick={openCreate}>
+          <IconButton color="inherit" onClick={load}>
+            <RefreshIcon />
+          </IconButton>
+          <Button color="inherit" onClick={openCreate} startIcon={<AddIcon />}>
             New Shipment
           </Button>
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="lg" sx={{ py: 3 }}>
-        {/* Top cards */}
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ mb: 2 }}>
-          <Paper variant="outlined" sx={{ p: 2, flex: 1 }}>
-            <Typography variant="overline">Total Shipments</Typography>
-            <Typography variant="h4">{stats.total}</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Stored in H2 (in-memory). Restart backend = data resets.
-            </Typography>
-          </Paper>
-
-          <Paper variant="outlined" sx={{ p: 2, flex: 2 }}>
-            <Typography variant="overline">Status Overview</Typography>
-            <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: "wrap" }}>
-              {STATUS.map((s) => (
-                <Chip
-                  key={s}
-                  label={`${s} • ${stats.counts[s] || 0}`}
-                  {...statusChipProps(s)}
-                  onClick={() => setStatusFilter(s)}
-                  sx={{ cursor: "pointer" }}
-                />
-              ))}
-              <Chip
-                label="ALL"
-                variant={statusFilter === "ALL" ? "filled" : "outlined"}
-                onClick={() => setStatusFilter("ALL")}
-                sx={{ cursor: "pointer" }}
-              />
-            </Stack>
-          </Paper>
-        </Stack>
-
-        {/* Search + filters */}
-        <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-          <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems="center">
-            <TextField
-              fullWidth
-              label="Search (tracking, city, sender, vehicle, status...)"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <Button variant="outlined" onClick={quickTrackingSearch}>
-              Search Tracking
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={openCreate}
-              sx={{ whiteSpace: "nowrap" }}
-            >
-              Create
-            </Button>
-          </Stack>
-        </Paper>
-
-        {/* Table */}
-        <Paper variant="outlined" sx={{ overflow: "hidden" }}>
-          <Box sx={{ p: 2, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <Typography variant="h6">Shipments</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Showing {filtered.length} of {rows.length}
-            </Typography>
+      <Container sx={{ py: 3 }}>
+        {loading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+            <CircularProgress />
           </Box>
-
-          <Divider />
-
-          {loading ? (
-            <Box sx={{ p: 4, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <CircularProgress />
-            </Box>
-          ) : (
-            <Box sx={{ width: "100%", overflowX: "auto" }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Tracking</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Route</TableCell>
-                    <TableCell>Vehicle</TableCell>
-                    <TableCell>EDD</TableCell>
-                    <TableCell align="right">Actions</TableCell>
+        ) : (
+          <Paper>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Tracking</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Route</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map((r) => (
+                  <TableRow key={r.id}>
+                    <TableCell>{r.id}</TableCell>
+                    <TableCell>{r.trackingNumber}</TableCell>
+                    <TableCell>
+                      <Chip label={r.status} {...statusChipProps(r.status)} />
+                    </TableCell>
+                    <TableCell>
+                      {r.pickupCity} → {r.dropCity}
+                    </TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => openEdit(r)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton onClick={() => remove(r.id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
                   </TableRow>
-                </TableHead>
-
-                <TableBody>
-                  {filtered.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={7}>
-                        <Typography sx={{ py: 3 }} color="text.secondary" align="center">
-                          No shipments found. Create one.
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filtered.map((r) => (
-                      <TableRow key={r.id} hover>
-                        <TableCell>{r.id}</TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>{r.trackingNumber}</TableCell>
-                        <TableCell>
-                          <Chip size="small" label={r.status} {...statusChipProps(r.status)} />
-                        </TableCell>
-                        <TableCell>
-                          {r.pickupCity} → {r.dropCity}
-                        </TableCell>
-                        <TableCell>{r.vehicleNumber || "-"}</TableCell>
-                        <TableCell>{r.expectedDeliveryDate || "-"}</TableCell>
-                        <TableCell align="right">
-                          <Tooltip title="Edit">
-                            <IconButton onClick={() => openEdit(r)}>
-                              <EditIcon />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Delete">
-                            <IconButton onClick={() => remove(r.id)}>
-                              <DeleteIcon />
-                            </IconButton>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </Box>
-          )}
-        </Paper>
+                ))}
+              </TableBody>
+            </Table>
+          </Paper>
+        )}
       </Container>
 
-      {/* Create/Edit Dialog */}
-      <Dialog open={open} onClose={closeDialog} fullWidth maxWidth="md">
-        <DialogTitle>{editId ? "Edit Shipment" : "Create Shipment"}</DialogTitle>
-        <DialogContent dividers>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-              <TextField
-                fullWidth
-                label="Tracking Number *"
-                value={form.trackingNumber}
-                onChange={handleChange("trackingNumber")}
-              />
-              <TextField
-                fullWidth
-                label="Vehicle Number"
-                value={form.vehicleNumber}
-                onChange={handleChange("vehicleNumber")}
-              />
-            </Stack>
-
-            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-              <TextField
-                fullWidth
-                label="Sender Name"
-                value={form.senderName}
-                onChange={handleChange("senderName")}
-              />
-              <TextField
-                fullWidth
-                label="Receiver Name"
-                value={form.receiverName}
-                onChange={handleChange("receiverName")}
-              />
-            </Stack>
-
-            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-              <TextField
-                fullWidth
-                label="Pickup City *"
-                value={form.pickupCity}
-                onChange={handleChange("pickupCity")}
-              />
-              <TextField
-                fullWidth
-                label="Drop City *"
-                value={form.dropCity}
-                onChange={handleChange("dropCity")}
-              />
-            </Stack>
-
-            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-              <TextField
-                fullWidth
-                label="Status *"
-                select
-                SelectProps={{ native: true }}
-                value={form.status}
-                onChange={handleChange("status")}
-              >
-                {STATUS.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </TextField>
-
-              <TextField
-                fullWidth
-                label="Expected Delivery Date"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                value={form.expectedDeliveryDate}
-                onChange={handleChange("expectedDeliveryDate")}
-              />
-            </Stack>
-
-            <Typography variant="body2" color="text.secondary">
-              Note: Tracking Number is unique (cannot duplicate).
-            </Typography>
-          </Stack>
+      <Dialog open={open} onClose={closeDialog}>
+        <DialogTitle>{editId ? "Edit" : "Create"} Shipment</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Tracking Number"
+            value={form.trackingNumber}
+            onChange={handleChange("trackingNumber")}
+            sx={{ mt: 2 }}
+          />
         </DialogContent>
-
         <DialogActions>
-          <Button onClick={closeDialog} disabled={saving}>
-            Cancel
-          </Button>
-          <Button variant="contained" onClick={save} disabled={saving}>
-            {saving ? "Saving..." : editId ? "Update" : "Create"}
+          <Button onClick={closeDialog}>Cancel</Button>
+          <Button onClick={save} variant="contained">
+            Save
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar */}
-      <Snackbar open={snack.open} autoHideDuration={2500} onClose={closeSnack} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
-        <Alert onClose={closeSnack} severity={snack.severity} variant="filled" sx={{ width: "100%" }}>
-          {snack.msg}
-        </Alert>
+      <Snackbar open={snack.open} autoHideDuration={2500} onClose={closeSnack}>
+        <Alert severity={snack.severity}>{snack.msg}</Alert>
       </Snackbar>
     </>
   );
