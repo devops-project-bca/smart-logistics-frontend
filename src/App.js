@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ShipmentAPI } from "./api";
 
 import {
@@ -71,7 +71,6 @@ export default function App() {
     severity: "success",
   });
 
-  /* ✅ notify memoized */
   const notify = useCallback((msg, severity = "success") => {
     setSnack({ open: true, msg, severity });
   }, []);
@@ -79,7 +78,6 @@ export default function App() {
   const closeSnack = () =>
     setSnack((s) => ({ ...s, open: false }));
 
-  /* ✅ load memoized & clean deps */
   const load = useCallback(async () => {
     try {
       setLoading(true);
@@ -92,11 +90,9 @@ export default function App() {
     }
   }, [notify]);
 
-  /* ✅ useEffect dependency FIXED */
- useEffect(() => {
-  load();
-}, [load]);
-
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const openCreate = () => {
     setEditId(null);
@@ -221,7 +217,7 @@ export default function App() {
         </DialogContent>
         <DialogActions>
           <Button onClick={closeDialog}>Cancel</Button>
-          <Button onClick={save} variant="contained">
+          <Button onClick={save} variant="contained" disabled={saving}>
             Save
           </Button>
         </DialogActions>
