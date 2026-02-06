@@ -93,9 +93,10 @@ export default function App() {
   }, [notify]);
 
   /* ✅ useEffect dependency FIXED */
-  useEffect(() => {
-    load();
-  }, [load]);
+ useEffect(() => {
+  load();
+}, [load]);
+
 
   const openCreate = () => {
     setEditId(null);
