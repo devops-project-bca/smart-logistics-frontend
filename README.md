@@ -1,73 +1,92 @@
-# Getting Started with Create React App
+# Smart Logistics System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Smart Logistics System is a full-stack web application developed to manage logistics operations efficiently.  
+The project consists of a React Frontend and a Spring Boot Backend, integrated with CI/CD, SonarCloud analysis, Docker, and cloud deployment.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🚀 Live Deployments
 
-### `npm start`
+### 🌐 Frontend – Vercel
+Live URL:  
+https://smart-logistics-frontend-mocha.vercel.app
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 🌐 Frontend – Render
+Live URL:  
+https://smart-logistics-frontend-2.onrender.com
 
-### `npm test`
+Note:  
+This service is hosted on Render Free Plan.  
+If inactive, the service may take 30–60 seconds to start on first access.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 🔧 Backend – Docker (Local)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The backend is containerized using Docker and runs locally.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Run backend using Docker:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+docker build -t smart-logistics-backend .  
+docker run -d -p 8080:8080 --name smart-backend smart-logistics-backend
 
-### `npm run eject`
+Backend Base URL:  
+http://localhost:8080
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Sample API Endpoint:  
+http://localhost:8080/api/shipments
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 📊 Code Quality – SonarCloud
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+SonarCloud analysis is configured for both frontend and backend.
 
-## Learn More
+Quality Gate Status: PASSED  
+Security: A  
+Reliability: A  
+Maintainability: A  
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## ⚙️ CI/CD
 
-### Code Splitting
+GitHub Actions configured for:
+- Build
+- Test
+- SonarCloud analysis
+- Pull Request workflow
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## 🛠️ Tech Stack
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Frontend:
+React, JavaScript, HTML, CSS, Axios, Vercel, Render
 
-### Making a Progressive Web App
+Backend:
+Java, Spring Boot, REST APIs, Maven, Docker
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+DevOps:
+GitHub, GitHub Actions, SonarCloud, Docker, Vercel, Render
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## ▶️ Run Frontend Locally
 
-### Deployment
+git clone https://github.com/devops-project-bca/smart-logistics-frontend.git  
+cd smart-logistics-frontend  
+npm install  
+npm start  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Frontend runs at:  
+http://localhost:3000
 
-### `npm run build` fails to minify
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-PR workflow validated with GitHub Actions CI.
+## 👨‍💻 Developer
 
-
+Shakthi Nandha  
+BCA – DevOps Project
