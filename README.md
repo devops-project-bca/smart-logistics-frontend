@@ -1,76 +1,62 @@
-# Smart Logistics System
+# Smart Logistics System – Frontend
 
-Smart Logistics System is a full-stack web application developed to manage logistics operations efficiently.  
-The project consists of a React Frontend and a Spring Boot Backend, integrated with CI/CD, SonarCloud analysis, Docker, and cloud deployment.
+This is the React-based frontend for the Smart Logistics System, designed to manage logistics and shipment operations efficiently.  
+The application follows DevOps best practices including CI/CD, code quality analysis, containerization, and cloud deployment.
 
 ---
 
-## 🚀 Live Deployments
+## 🚀 Live Deployment
 
-### 🌐 Frontend – Vercel
-Live URL:  
+### Frontend (Vercel)
 https://smart-logistics-frontend-mocha.vercel.app
 
----
-
-### 🌐 Frontend – Render
-Live URL:  
+### Frontend (Render – Free Tier)
 https://smart-logistics-frontend-2.onrender.com
 
-Note:  
-This service is hosted on Render Free Plan.  
-If inactive, the service may take 30–60 seconds to start on first access.
+⚠️ Note:  
+Render free instances may spin down due to inactivity.  
+The first request may take 30–60 seconds to respond.
 
 ---
 
-## 🔧 Backend – Docker (Local)
+## 📊 Project Presentation (Gamma AI)
 
-The backend is containerized using Docker and runs locally.
+The complete project presentation was created using Gamma AI and covers:
 
-Run backend using Docker:
+- Project overview  
+- System architecture  
+- Frontend & backend integration  
+- CI/CD pipeline using GitHub Actions  
+- SonarCloud code quality analysis  
+- Docker containerization  
+- Deployment using Vercel & Render  
+- Challenges faced and future scope  
 
-docker build -t smart-logistics-backend .  
-docker run -d -p 8080:8080 --name smart-backend smart-logistics-backend
-
-Backend Base URL:  
-http://localhost:8080
-
-Sample API Endpoint:  
-http://localhost:8080/api/shipments
-
----
-
-## 📊 Code Quality – SonarCloud
-
-SonarCloud analysis is configured for both frontend and backend.
-
-Quality Gate Status: PASSED  
-Security: A  
-Reliability: A  
-Maintainability: A  
-
----
-
-## ⚙️ CI/CD
-
-GitHub Actions configured for:
-- Build
-- Test
-- SonarCloud analysis
-- Pull Request workflow
+PPT Link:  
+https://gamma.app/docs/Smart-Logistics-System-hq5yx3ca9plb8bn
 
 ---
 
 ## 🛠️ Tech Stack
 
-Frontend:
-React, JavaScript, HTML, CSS, Axios, Vercel, Render
+- Frontend: React, JavaScript, HTML, CSS  
+- API Communication: Axios  
+- Backend: Spring Boot (REST APIs)  
+- CI/CD: GitHub Actions  
+- Code Quality: SonarCloud  
+- Containerization: Docker  
+- Deployment: Vercel, Render  
 
-Backend:
-Java, Spring Boot, REST APIs, Maven, Docker
+---
 
-DevOps:
-GitHub, GitHub Actions, SonarCloud, Docker, Vercel, Render
+## ⚙️ Features
+
+- Shipment data listing and management  
+- REST API-based frontend-backend communication  
+- Automated CI pipeline on GitHub  
+- Static code analysis using SonarCloud  
+- Dockerized backend service  
+- Cloud deployment with live URLs  
 
 ---
 
@@ -86,7 +72,33 @@ http://localhost:3000
 
 ---
 
-## 👨‍💻 Developer
+## 🔍 SonarCloud
 
-Shakthi Nandha  
-BCA – DevOps Project
+- SonarCloud analysis integrated via GitHub Actions  
+- Code smells and maintainability issues identified  
+- Quality Gate configured and monitored  
+
+---
+
+## ⚠️ Challenges Faced
+
+- Fixing SonarCloud quality gate failures  
+- Resolving React build warnings in CI  
+- Docker build and container execution issues  
+- Deployment delays due to free-tier limitations  
+
+---
+
+## 🔮 Future Enhancements
+
+- Database integration  
+- Authentication and authorization  
+- Advanced shipment tracking  
+- Cloud-native backend deployment  
+
+---
+
+## 👨‍💻 Project Type
+
+Academic / DevOps Demonstration Project  
+Built for college review, CI/CD practice, and deployment learning
