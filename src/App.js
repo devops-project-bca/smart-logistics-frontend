@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { ShipmentAPI } from "./api";
 
 import {
@@ -81,10 +81,10 @@ export default function App() {
   // snackbar
   const [snack, setSnack] = useState({ open: false, msg: "", severity: "success" });
 
-  const notify = (msg, severity = "success") => setSnack({ open: true, msg, severity });
-  const closeSnack = () => setSnack((s) => ({ ...s, open: false }));
+  const notify = useCallback((msg, severity = "success") => setSnack({ open: true, msg, severity }), []);
+  const closeSnack = useCallback(() => setSnack((s) => ({ ...s, open: false })), []);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       setLoading(true);
       const res = await ShipmentAPI.list();
@@ -94,11 +94,11 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [notify]);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
