@@ -1,8 +1,9 @@
 services:
-  - type: static
+  - type: web
     name: smart-logistics-frontend
-    buildCommand: npm run build
-    staticPublishPath: build
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npx serve -s build -l 3000
     envVars:
       - key: CI
         value: false
