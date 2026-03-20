@@ -1,8 +1,6 @@
 import axios from "axios";
 
-const API_BASE =
-  process.env.REACT_APP_API_BASE || "http://localhost:8080/api/shipments";
-
+const BASE_URL = "https://smart-logistics-backend.happyhill-9f60ef5d.centralindia.azurecontainerapps.io/api";
 export const ShipmentAPI = {
   list: () => axios.get(API_BASE),
   get: (id) => axios.get(`${API_BASE}/${id}`),
