@@ -177,14 +177,16 @@ export default function App() {
       setSaving(true);
       const payload = {
         trackingNumber: form.trackingNumber.trim(),
-        senderName: form.senderName.trim() || null,
-        receiverName: form.receiverName.trim() || null,
+        senderName: form.senderName.trim(),
+        receiverName: form.receiverName.trim(),
         pickupCity: form.pickupCity.trim(),
         dropCity: form.dropCity.trim(),
-        vehicleNumber: form.vehicleNumber.trim() || null,
-        status: form.status || "CREATED",
-        expectedDeliveryDate: form.expectedDeliveryDate || null,
+        vehicleNumber: form.vehicleNumber.trim(),
+        status: form.status,
+        expectedDeliveryDate: form.expectedDeliveryDate,
       };
+      
+      console.log("Sending payload:", payload);
 
       if (editId) {
         await ShipmentAPI.update(editId, payload);
@@ -198,7 +200,8 @@ export default function App() {
       await load();
     } catch (e) {
       // Error from backend (e.g., validation, uniqueness, etc.)
-      const errorMsg = e.response?.data?.message || e.message || "Save failed. Please check the data and try again.";
+      console.error("API Error:", e.response?.data || e.message);
+      const errorMsg = e.response?.data?.message || e.response?.data?.error || e.message || "Save failed. Please check the data and try again.";
       notify(errorMsg, "error");
     } finally {
       setSaving(false);
