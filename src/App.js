@@ -196,8 +196,9 @@ export default function App() {
       setOpen(false);
       await load();
     } catch (e) {
-      // common: duplicate tracking number (unique constraint)
-      notify("Save failed. Check tracking number unique + backend logs.", "error");
+      // Error from backend (e.g., validation, uniqueness, etc.)
+      const errorMsg = e.response?.data?.message || e.message || "Save failed. Please check the data and try again.";
+      notify(errorMsg, "error");
     } finally {
       setSaving(false);
     }
@@ -466,7 +467,7 @@ export default function App() {
             </Stack>
 
             <Typography variant="body2" color="text.secondary">
-              Note: Tracking Number is unique (cannot duplicate)              npm install && npm run build              npm install && npm run build              npm install && npm run build              npm install && npm run build              npm install && npm run build.
+              Note: All fields with * are required.
             </Typography>
           </Stack>
         </DialogContent>
